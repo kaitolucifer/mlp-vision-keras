@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 import tensorflow as tf
 import tensorflow_addons as tfa
@@ -38,9 +39,13 @@ if __name__ == "__main__":
                         help="Image dataset from directory for training (train_dir/label_no(0, 1, ...)/image.jpg)")
     parser.add_argument("--test-dir", default="",
                         help="Image dataset from directory for testing (test_dir/label_no(0, 1, ...)/image.jpg)")
-    parser.add_argument("--save-path", default="./model/",
+    parser.add_argument("-s", "--save-path", default="./model/",
                         help="File path to save model")
     args = parser.parse_args()
+
+    if args.self_attention and args.embedding_dim % 3:
+        print("embedding dim must be multiples of 3 if using self attention")
+        sys.exit(1)
 
     print(f"MLP block type: {args.mlp_block}")
     num_patches = (args.image_size // args.patch_size) ** 2
@@ -92,7 +97,6 @@ if __name__ == "__main__":
         callbacks=[early_stopping, reduce_lr, checkpoint],
         validation_data=test,
     )
-    classifier = tf.keras.models.load_model(args.save_path)
     _, accuracy, top_5_accuracy = classifier.evaluate(test)
 
     print(f"Test accuracy: {round(accuracy * 100, 2)}%")
