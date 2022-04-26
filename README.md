@@ -1,11 +1,18 @@
 # mlp-vision-keras
 ### Usage
 
+#### training
+
 ```bash
-python .\train.py --image-size 160 --train-dir ./train --num-epochs 10 --embedding-dim 384 --positional-encoding --self-attention
+python ./train.py --image-size 160 --train-dir ./train --save-path ./model --num-epochs 10 --embedding-dim 384 --mlp-block gmlp --positional-encoding --self-attention
 ```
 
-### Training data folder
+#### evaluating
+```bash
+python ./eval.py --eval-dir ./eval --image-size 160 --output-path ./output
+```
+
+### Training data folder structure
 
 ```bash
 main_directory/
