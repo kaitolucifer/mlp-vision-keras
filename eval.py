@@ -5,8 +5,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import numpy as np
 
-from self_attention import SelfAttention
-from patch import Patch
+from layers import  SelfAttention, Patch
 from blocks import MLPMixerLayer, FNetLayer, gMLPLayer
 
 if __name__ == "__main__":

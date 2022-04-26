@@ -4,8 +4,7 @@ from typing import Union
 import tensorflow as tf
 import numpy as np
 
-from patch import Patch
-from self_attention import SelfAttention
+from layers import  SelfAttention, Patch
 from blocks import MLPMixerLayer, FNetLayer, gMLPLayer
 
 

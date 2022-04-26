@@ -3,7 +3,7 @@ from __future__ import annotations
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from self_attention import SelfAttention
+from layers import SelfAttention
 
 
 class gMLPLayer(tf.keras.layers.Layer):
