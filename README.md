@@ -7,9 +7,9 @@
 python ./train.py --image-size 160 --train-dir ./train --save-path ./model --num-epochs 10 --embedding-dim 384 --mlp-block gmlp --positional-encoding --self-attention
 ```
 
-#### evaluating
+#### testing
 ```bash
-python ./eval.py --eval-dir ./eval --image-size 160 --output-path ./output
+python ./predict.py --test-dir ./test --image-size 160 --output-path ./output
 ```
 
 ### Training data folder structure

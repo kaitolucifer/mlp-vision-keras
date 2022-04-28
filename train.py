@@ -37,8 +37,8 @@ if __name__ == "__main__":
                         action="store_true", help="Use self attention")
     parser.add_argument("--train-dir", default="./train/",
                         help="Image dataset from directory for training (train_dir/label_no(0, 1, ...)/image.jpg)")
-    parser.add_argument("--test-dir", default="",
-                        help="Image dataset from directory for testing (test_dir/label_no(0, 1, ...)/image.jpg)")
+    parser.add_argument("--val-dir", default="",
+                        help="Image dataset from directory for validating (val_dir/label_no(0, 1, ...)/image.jpg)")
     parser.add_argument("-s", "--save-path", default="./model/",
                         help="File path to save model")
     args = parser.parse_args()
@@ -62,16 +62,16 @@ if __name__ == "__main__":
         mode='max',
         save_best_only=True)
 
-    if args.test_dir:
+    if args.val_dir:
         train = tf.keras.preprocessing.image_dataset_from_directory(
             args.train_dir, label_mode="int", image_size=(args.image_size, args.image_size))
-        test = tf.keras.preprocessing.image_dataset_from_directory(
-            args.test_dir, label_mode="int", image_size=(args.image_size, args.image_size))
+        val = tf.keras.preprocessing.image_dataset_from_directory(
+            args.val_dir, label_mode="int", image_size=(args.image_size, args.image_size))
     else:
         train = tf.keras.preprocessing.image_dataset_from_directory(
             args.train_dir, label_mode="int", image_size=(args.image_size, args.image_size),
             validation_split=0.1, subset="training", seed=42)
-        test = tf.keras.preprocessing.image_dataset_from_directory(
+        val = tf.keras.preprocessing.image_dataset_from_directory(
             args.train_dir, label_mode="int", image_size=(args.image_size, args.image_size),
             validation_split=0.1, subset="validation", seed=42)
 
@@ -95,9 +95,9 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.num_epochs,
         callbacks=[early_stopping, reduce_lr, checkpoint],
-        validation_data=test,
+        validation_data=val,
     )
-    _, accuracy, top_5_accuracy = classifier.evaluate(test)
+    _, accuracy, top_5_accuracy = classifier.evaluate(val)
 
-    print(f"Test accuracy: {round(accuracy * 100, 2)}%")
-    print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
+    print(f"Val accuracy: {round(accuracy * 100, 2)}%")
+    print(f"Val top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
