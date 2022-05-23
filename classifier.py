@@ -10,9 +10,9 @@ from blocks import MLPMixerLayer, FNetLayer, gMLPLayer
 
 class Classifier(tf.keras.Model):
     def __init__(self, mlp_block: str, num_blocks: int,
-                 embedding_dim: int, dropout_rate: float, image_size: int,
+                 embedding_dim: int, dropout_rate: float,
                  patch_size: int, num_patches: int, num_classes: int,
-                 positional_encoding: bool = False, self_attention: bool = False) -> Classifier:
+                 positional_encoding: bool = False, self_attention: bool = False, num_heads: int = None) -> Classifier:
         super().__init__()
         self.positional_encoding = positional_encoding
         self.self_attention = self_attention
@@ -20,11 +20,12 @@ class Classifier(tf.keras.Model):
         self.augmentation = tf.keras.Sequential(
             [
                 tf.keras.layers.Normalization(),
-                tf.keras.layers.Resizing(image_size, image_size),
                 tf.keras.layers.RandomFlip("horizontal"),
                 tf.keras.layers.RandomZoom(
                     height_factor=0.2, width_factor=0.2
                 ),
+                tf.keras.layers.RandomRotation(factor=0.2),
+                tf.keras.layers.RandomContrast(factor=0.2),
             ],
             name="data_augmentation",
         )
@@ -43,18 +44,18 @@ class Classifier(tf.keras.Model):
             case "mlp-mixer":
                 for _ in range(num_blocks):
                     if self.self_attention:
-                        self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim)]
+                        self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim, num_heads)]
                     else:
                         self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate)]
             case "fnet":
                 for _ in range(num_blocks):
                     if self.self_attention:
-                        self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim)]
+                        self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim, num_heads)]
                     else:
                         self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate)]
             case "gmlp":
                 for _ in range(num_blocks):
-                    self.blocks += [gMLPLayer(num_patches, embedding_dim, dropout_rate, self.self_attention)]
+                    self.blocks += [gMLPLayer(num_patches, embedding_dim, dropout_rate, self.self_attention, num_heads)]
 
         self.blocks = tf.keras.Sequential(self.blocks)
 

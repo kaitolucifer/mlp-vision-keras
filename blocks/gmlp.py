@@ -7,9 +7,8 @@ from layers import SelfAttention
 
 
 class gMLPLayer(tf.keras.layers.Layer):
-    def __init__(self, num_patches: int, embedding_dim: int, dropout_rate: float, self_attention: bool = False, *args, **kwargs) -> gMLPLayer:
+    def __init__(self, num_patches: int, embedding_dim: int, dropout_rate: float, self_attention: bool = False, num_heads: int = None, *args, **kwargs) -> gMLPLayer:
         super().__init__(*args, **kwargs)
-
         self.channel_projection1 = tf.keras.Sequential(
             [
                 tf.keras.layers.Dense(units=embedding_dim * 2),
@@ -27,7 +26,7 @@ class gMLPLayer(tf.keras.layers.Layer):
         self.normalize1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.normalize2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
 
-        self.attention = SelfAttention(embedding_dim) if self_attention else None
+        self.attention = SelfAttention(embedding_dim, num_heads) if self_attention else None
 
 
     def spatial_gating_unit(self, x: tf.Tensor) -> tf.Tensor:

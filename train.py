@@ -35,6 +35,8 @@ if __name__ == "__main__":
                         action="store_true", help="Use positional encoding")
     parser.add_argument("-sa", "--self-attention",
                         action="store_true", help="Use self attention")
+    parser.add_argument("-nh", "--num-heads", type=int,
+                        default=1, help="Num of heads to use in self attention")
     parser.add_argument("--train-dir", default="./train/",
                         help="Image dataset from directory for training (train_dir/label_no(0, 1, ...)/image.jpg)")
     parser.add_argument("--val-dir", default="",
@@ -43,9 +45,13 @@ if __name__ == "__main__":
                         help="File path to save model")
     args = parser.parse_args()
 
-    if args.self_attention and args.embedding_dim % 3:
-        print("embedding dim must be multiples of 3 if using self attention")
-        sys.exit(1)
+    if args.self_attention:
+        if args.embedding_dim % 3:
+            print("embedding dim must be multiples of 3 if using self attention")
+            sys.exit(1)
+        elif args.embedding_dim % args.num_heads != 0:
+            print("embedding dim must be be exactly divisible by num heads")
+            sys.exit(1)
 
     print(f"MLP block type: {args.mlp_block}")
     num_patches = (args.image_size // args.patch_size) ** 2
@@ -75,8 +81,9 @@ if __name__ == "__main__":
             args.train_dir, label_mode="int", image_size=(args.image_size, args.image_size),
             validation_split=0.1, subset="validation", seed=42)
 
-    classifier = Classifier(mlp_block=args.mlp_block, num_blocks=args.num_blocks, embedding_dim=args.embedding_dim, dropout_rate=args.dropout_rate, image_size=args.image_size,
-                            patch_size=args.patch_size, num_patches=num_patches, num_classes=len(train.class_names), positional_encoding=args.positional_encoding)
+    classifier = Classifier(mlp_block=args.mlp_block, num_blocks=args.num_blocks, embedding_dim=args.embedding_dim, dropout_rate=args.dropout_rate,
+                            patch_size=args.patch_size, num_patches=num_patches, num_classes=len(train.class_names),
+                            positional_encoding=args.positional_encoding, num_heads=args.num_heads)
     optimizer = tfa.optimizers.AdamW(
         learning_rate=args.learning_rate, weight_decay=args.weight_decay,
     )
