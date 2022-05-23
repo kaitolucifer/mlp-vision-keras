@@ -23,3 +23,6 @@ main_directory/
 ......b_image_1.jpg
 ......b_image_2.jpg
 ```
+
+### License
+Distributed under an [MIT license](https://github.com/kaitolucifer/mlp-vision-keras/blob/main/LICENSE).
