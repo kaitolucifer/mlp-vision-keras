@@ -3,7 +3,7 @@ from __future__ import annotations
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from layers import SelfAttention
+from layers import MultiHeadSelfAttention
 
 
 class gMLPLayer(tf.keras.layers.Layer):
@@ -26,7 +26,7 @@ class gMLPLayer(tf.keras.layers.Layer):
         self.normalize1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.normalize2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
 
-        self.attention = SelfAttention(embedding_dim, num_heads) if self_attention else None
+        self.attention = MultiHeadSelfAttention(embedding_dim, num_heads) if self_attention else None
 
 
     def spatial_gating_unit(self, x: tf.Tensor) -> tf.Tensor:

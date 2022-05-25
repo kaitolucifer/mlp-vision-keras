@@ -1,2 +1,2 @@
 from .patch import Patch
-from .self_attention import SelfAttention
+from .multi_head_self_attention import MultiHeadSelfAttention

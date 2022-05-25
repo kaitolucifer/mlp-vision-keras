@@ -5,6 +5,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from classifier import Classifier
+from data_augumentation import get_data_augmentation
 
 from utils import config
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     parser.add_argument("-sa", "--self-attention",
                         action="store_true", help="Use self attention")
     parser.add_argument("-nh", "--num-heads", type=int,
-                        default=1, help="Num of heads to use in self attention")
+                        default=config.num_heads, help="Num of heads to use in self attention")
     parser.add_argument("--train-dir", default="./train/",
                         help="Image dataset from directory for training (train_dir/label_no(0, 1, ...)/image.jpg)")
     parser.add_argument("--val-dir", default="",
@@ -81,8 +82,9 @@ if __name__ == "__main__":
             args.train_dir, label_mode="int", image_size=(args.image_size, args.image_size),
             validation_split=0.1, subset="validation", seed=42)
 
+    augmentation = get_data_augmentation()
     classifier = Classifier(mlp_block=args.mlp_block, num_blocks=args.num_blocks, embedding_dim=args.embedding_dim, dropout_rate=args.dropout_rate,
-                            patch_size=args.patch_size, num_patches=num_patches, num_classes=len(train.class_names),
+                            patch_size=args.patch_size, num_patches=num_patches, num_classes=len(train.class_names), augmentation=augmentation,
                             positional_encoding=args.positional_encoding, num_heads=args.num_heads)
     optimizer = tfa.optimizers.AdamW(
         learning_rate=args.learning_rate, weight_decay=args.weight_decay,

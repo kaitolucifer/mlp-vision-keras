@@ -4,31 +4,20 @@ from typing import Union
 import tensorflow as tf
 import numpy as np
 
-from layers import  SelfAttention, Patch
+from layers import MultiHeadSelfAttention, Patch
 from blocks import MLPMixerLayer, FNetLayer, gMLPLayer
 
 
 class Classifier(tf.keras.Model):
     def __init__(self, mlp_block: str, num_blocks: int,
                  embedding_dim: int, dropout_rate: float,
-                 patch_size: int, num_patches: int, num_classes: int,
+                 patch_size: int, num_patches: int, num_classes: int, augmentation: tf.Keras.Model,
                  positional_encoding: bool = False, self_attention: bool = False, num_heads: int = None) -> Classifier:
         super().__init__()
         self.positional_encoding = positional_encoding
         self.self_attention = self_attention
 
-        self.augmentation = tf.keras.Sequential(
-            [
-                tf.keras.layers.Normalization(),
-                tf.keras.layers.RandomFlip("horizontal"),
-                tf.keras.layers.RandomZoom(
-                    height_factor=0.2, width_factor=0.2
-                ),
-                tf.keras.layers.RandomRotation(factor=0.2),
-                tf.keras.layers.RandomContrast(factor=0.2),
-            ],
-            name="data_augmentation",
-        )
+        self.augmentation = augmentation
 
         self.patches = Patch(patch_size, num_patches)
         self.dense = tf.keras.layers.Dense(units=embedding_dim)
@@ -44,13 +33,13 @@ class Classifier(tf.keras.Model):
             case "mlp-mixer":
                 for _ in range(num_blocks):
                     if self.self_attention:
-                        self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim, num_heads)]
+                        self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate), MultiHeadSelfAttention(embedding_dim, num_heads)]
                     else:
                         self.blocks += [MLPMixerLayer(num_patches, embedding_dim, dropout_rate)]
             case "fnet":
                 for _ in range(num_blocks):
                     if self.self_attention:
-                        self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate), SelfAttention(embedding_dim, num_heads)]
+                        self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate), MultiHeadSelfAttention(embedding_dim, num_heads)]
                     else:
                         self.blocks += [FNetLayer(num_patches, embedding_dim, dropout_rate)]
             case "gmlp":

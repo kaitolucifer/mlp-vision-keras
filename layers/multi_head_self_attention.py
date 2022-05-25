@@ -3,8 +3,8 @@ from __future__ import annotations
 import tensorflow as tf
 
 
-class SelfAttention(tf.keras.layers.Layer):
-    def __init__(self, embedding_dim: int, num_heads: int, *args, **kwargs) -> SelfAttention:
+class MultiHeadSelfAttention(tf.keras.layers.Layer):
+    def __init__(self, embedding_dim: int, num_heads: int, *args, **kwargs) -> MultiHeadSelfAttention:
         super().__init__(*args, **kwargs)
 
         self.embedding_dim = embedding_dim

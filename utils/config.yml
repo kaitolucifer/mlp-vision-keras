@@ -7,3 +7,4 @@ image_size: 64
 patch_size: 8
 embedding_dim: 256
 num_blocks: 4
+num_heads: 4
